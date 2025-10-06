@@ -1,0 +1,8 @@
+streamlit
+ultralytics
+opencv-python-headless
+numpy
+Pillow
+matplotlib
+streamlit-drawable-canvas
+streamlit-image-coordinates
