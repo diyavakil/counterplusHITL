@@ -10,22 +10,17 @@ from PIL import Image
 import base64
 from io import BytesIO
 
-# Custom title/icon
+# custom title/icon
 try:
     im = Image.open("App_Icon.jpg")  # cute squid
     st.set_page_config(page_title="Colony Counter v1", page_icon=im, layout="centered")
 except FileNotFoundError:
     st.set_page_config(page_title="Colony Counter v1", layout="centered")
 
-# Header and Instructions
+# header
 st.title("🧫 Colony Counter v1")
 st.markdown("""
-Analyze bacterial colonies with automated YOLO detection and manual dot additions for precise counting.  
-**Instructions**:  
-1. Upload a JPG, JPEG, or PNG image.  
-2. Adjust YOLO options and click "Run YOLO Inference".  
-3. Click on the annotated image to add red dots for missed colonies.  
-4. Use buttons to undo, clear, or download the edited image.
+Quantify bacterial colonies with automated YOLO detection and manual human-in-the-loop corrections. Navigate to the GitHub repository using the button in the top right corner for detailed guide.
 """)
 
 try:
@@ -34,12 +29,12 @@ except Exception as e:
     st.error(f"Failed to load YOLO model: {e}. Ensure the weights file 'weights.pt' is in the correct directory.")
     st.stop()
 
-# Upload img
+# upload img
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"], help="Supported formats: JPG, JPEG, PNG")
 if uploaded_file is not None:
     try:
         with st.spinner("Loading image..."):
-            # Convert uploaded file to OpenCV img
+            # convert uploaded file to OpenCV img
             file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
             img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
             if img is None:
@@ -47,10 +42,10 @@ if uploaded_file is not None:
         
         st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption="Original Image", use_column_width=True)
         
-        # Options for YOLO
+        # options for YOLO
         with st.expander("YOLO Detection Options", expanded=True):
-            conf_threshold = st.slider("Confidence threshold", min_value=0.0, max_value=1.0, value=0.0, step=0.01, help="Filter detections below this confidence level.")
-            show_conf = st.checkbox("Show confidence values", value=True, help="Display confidence scores next to each detected colony.")
+            conf_threshold = st.slider("Confidence threshold", min_value=0.0, max_value=1.0, value=0.0, step=0.01, help="Filter out detections below this confidence level.")
+            show_conf = st.checkbox("Show confidence values", value=True, help="Display confidence scores for each detected colony.")
         
         if st.button("Run YOLO Inference"):
             with st.spinner("Running YOLO inference..."):
