@@ -22,7 +22,7 @@ except FileNotFoundError:
 st.title("🧫 Colony Counter v1")
 st.markdown("""
 Welcome to the Colony Counter! Upload an image of bacterial colonies, run YOLO detection, and manually add dots for missed colonies. 
-Use the sidebar to adjust detection settings and download results.
+Adjust detection settings and download results below.
 """, unsafe_allow_html=True)
 
 try:
@@ -30,12 +30,6 @@ try:
 except Exception as e:
     st.error(f"Failed to load YOLO model: {e}. Please check the weights file.")
     st.stop()
-
-# Sidebar for settings
-st.sidebar.header("Detection Settings")
-conf_threshold = st.sidebar.slider("Confidence threshold", min_value=0.0, max_value=1.0, value=0.00, step=0.01, help="Filter detections below this confidence level. Set to 0.00 to include all detections.")
-iou_threshold = st.sidebar.slider("Overlap (IoU) threshold", min_value=0.0, max_value=1.0, value=0.45, step=0.01, help="Set the IoU threshold for Non-Maximum Suppression to remove overlapping detections.")
-show_conf = st.sidebar.checkbox("Show confidence values", value=False, help="Display confidence scores next to each detected colony.")
 
 # Upload img
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"], help="Upload a high-resolution image of bacterial colonies (JPG, JPEG, or PNG).")
@@ -49,9 +43,14 @@ if uploaded_file is not None:
         
         st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption="Original Image", width=800)
         
-        if st.button("Run YOLO Inference"):
+        # YOLO Detection Options
+        with st.expander("YOLO Detection Options", expanded=True):
+            conf_threshold = st.slider("Confidence threshold", min_value=0.0, max_value=1.0, value=0.00, step=0.01, help="Filter detections below this confidence level. Set to 0.00 to include all detections.")
+            show_conf = st.checkbox("Show confidence values", value=False, help="Display confidence scores next to each detected colony.")
+        
+        if st.button("Run YOLO Inference", use_container_width=True):
             with st.spinner("Running YOLO inference..."):
-                results = model(img, conf=conf_threshold, iou=iou_threshold)
+                results = model(img, conf=conf_threshold)
                 img_annotated = img.copy()
                 
                 # Get boxes and confidences
@@ -102,7 +101,7 @@ if uploaded_file is not None:
                 save_path = "annotated_streamlit.jpg"
                 cv2.imwrite(save_path, img_annotated)
                 with open(save_path, "rb") as f:
-                    st.sidebar.download_button(
+                    st.download_button(
                         label="Download Annotated Image (Auto Only)",
                         data=f,
                         file_name="annotated_image_auto.jpg",
@@ -112,7 +111,7 @@ if uploaded_file is not None:
                 
                 # Save detections to JSON file
                 detections_json = json.dumps(detections, indent=2)
-                st.sidebar.download_button(
+                st.download_button(
                     label="Download Detections (JSON)",
                     data=detections_json,
                     file_name="detections.json",
@@ -209,15 +208,6 @@ if uploaded_file is not None:
                 
                 # Render the HTML in Streamlit
                 st.components.v1.html(html_code, height=height + 150, width=width + 20)
-                
-                # Move download button for edited image to sidebar
-                st.sidebar.download_button(
-                    label="Download Edited Image",
-                    data=(lambda: canvas.toDataURL('image/png')) if 'canvas' in locals() else open(save_path, "rb").read(),
-                    file_name="edited_image.png",
-                    mime="image/png",
-                    use_container_width=True
-                )
             
     except Exception as e:
         st.error(f"Error processing image: {e}")
