@@ -20,12 +20,7 @@ except FileNotFoundError:
 # Header and Instructions
 st.title("🧫 Colony Counter v1")
 st.markdown("""
-Analyze bacterial colonies with automated YOLO detection and manual dot additions for precise counting.  
-**Instructions**:  
-1. Upload a JPG, JPEG, or PNG image.  
-2. Adjust YOLO options and click "Run YOLO Inference".  
-3. Click on the annotated image to add red dots for missed colonies.  
-4. Use buttons to undo, clear, reset, or download the edited image.
+Analyze bacterial colonies with automated YOLO detection and manual human-in-the-loop corrections. Navigate to the GitHub repository using the button on the top right for detailed instructions (in the README.md file).
 """)
 
 try:
@@ -66,13 +61,20 @@ if uploaded_file is not None:
                 filtered_boxes = yolo_boxes[mask]
                 filtered_confs = yolo_confs[mask]
                 
+                # Scale factor for annotations based on image size
+                scale_factor = max(img.shape[0], img.shape[1]) / 1000.0  # Adjust based on image size
+                box_thickness = max(1, int(1 * scale_factor))  # Scale box thickness
+                font_scale = max(1.0, 1.0 * scale_factor)  # Scale font size
+                font_thickness = max(2, int(2 * scale_factor))  # Scale font thickness
+                
                 # Draw green boxes (and confidences if enabled)
                 for i, box in enumerate(filtered_boxes):
                     x1, y1, x2, y2 = map(int, box)
-                    cv2.rectangle(img_annotated, (x1, y1), (x2, y2), (0, 255, 0), 1)
+                    cv2.rectangle(img_annotated, (x1, y1), (x2, y2), (0, 255, 0), box_thickness)
                     if show_conf:
                         conf_text = f"{filtered_confs[i]:.2f}"
-                        cv2.putText(img_annotated, conf_text, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                        cv2.putText(img_annotated, conf_text, (x1, y1 - int(5 * scale_factor)), 
+                                   cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), font_thickness)
                 
                 # Count colonies (after filtering)
                 colony_count = len(filtered_boxes)
@@ -80,20 +82,16 @@ if uploaded_file is not None:
                 # Add auto count in bottom-right corner
                 text = f"Auto Colonies: {colony_count}"
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                font_scale = 3
-                thickness = 5
-                text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
+                font_scale_count = max(3.0, 3.0 * scale_factor)
+                thickness_count = max(5, int(5 * scale_factor))
+                text_size = cv2.getTextSize(text, font, font_scale_count, thickness_count)[0]
                 text_x = img_annotated.shape[1] - text_size[0] - 10
                 text_y = img_annotated.shape[0] - 10
-                cv2.putText(img_annotated, text, (text_x, text_y), font, font_scale, (0, 255, 0), thickness)
+                cv2.putText(img_annotated, text, (text_x, text_y), font, font_scale_count, (0, 255, 0), thickness_count)
                 
-                # Store annotated image and base64 in session state for reset
+                # Store annotated image in session state
                 st.session_state['img_annotated'] = img_annotated
                 st.session_state['colony_count'] = colony_count
-                buffered = BytesIO()
-                img_pil = Image.fromarray(cv2.cvtColor(img_annotated, cv2.COLOR_BGR2RGB))
-                img_pil.save(buffered, format="PNG")
-                st.session_state['base64_img'] = base64.b64encode(buffered.getvalue()).decode()
                 
                 st.image(cv2.cvtColor(img_annotated, cv2.COLOR_BGR2RGB), caption="Annotated Image (Auto Detections)", use_column_width=True)
                 
@@ -112,9 +110,9 @@ if uploaded_file is not None:
                 st.subheader("Manual Adjustments")
                 st.info("Click on the image to add red dots for missed colonies. Use the buttons to manage your edits.")
                 
-                # Maximum dimensions for display
-                MAX_WIDTH = 1200
-                MAX_HEIGHT = 800
+                # Maximum dimensions for display (increased for better quality)
+                MAX_WIDTH = 1920
+                MAX_HEIGHT = 1080
                 
                 def resize_image(image, max_width=MAX_WIDTH, max_height=MAX_HEIGHT):
                     """Resize image while preserving aspect ratio."""
@@ -146,7 +144,6 @@ if uploaded_file is not None:
                     <div style="margin-top: 10px;">
                         <button id="undo" title="Remove the last red dot added" style="margin: 5px; padding: 8px 16px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 4px;">Undo Last Dot</button>
                         <button id="clear" title="Remove all red dots, keeping current image" style="margin: 5px; padding: 8px 16px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 4px;">Clear All Dots</button>
-                        <button id="reset" title="Reload original YOLO-annotated image and clear all red dots" style="margin: 5px; padding: 8px 16px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 4px;">Reset to Auto</button>
                         <button id="download" title="Download the image with all annotations" style="margin: 5px; padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px;">Download Edited Image</button>
                     </div>
                 </div>
@@ -159,10 +156,12 @@ if uploaded_file is not None:
                 var initial_count = {colony_count};
                 function redraw() {{
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
                     ctx.drawImage(img, 0, 0, {width}, {height});
                     for (var p of points) {{
                         ctx.beginPath();
-                        ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+                        ctx.arc(p.x, p.y, 5 * {scale_factor}, 0, 2 * Math.PI);
                         ctx.fillStyle = 'red';
                         ctx.fill();
                     }}
@@ -188,11 +187,6 @@ if uploaded_file is not None:
                     points = [];
                     redraw();
                 }});
-                document.getElementById('reset').addEventListener('click', function() {{
-                    points = [];
-                    img.src = 'data:{mime_type};base64,{st.session_state['base64_img']}';
-                    redraw();
-                }});
                 document.getElementById('download').addEventListener('click', function() {{
                     var link = document.createElement('a');
                     link.download = 'edited_image.png';
@@ -204,19 +198,6 @@ if uploaded_file is not None:
                 
                 # Render the HTML in Streamlit
                 st.components.v1.html(html_code, height=height + 150, width=width + 20)
-                
-                # Reset to auto-annotated image
-                if st.button("Reset to Auto-Annotated Image", help="Reload the original YOLO-annotated image and clear all manual dots"):
-                    if 'img_annotated' in st.session_state:
-                        st.image(cv2.cvtColor(st.session_state['img_annotated'], cv2.COLOR_BGR2RGB), caption="Annotated Image (Auto Detections)", use_column_width=True)
-                        with open(save_path, "rb") as f:
-                            st.download_button(
-                                label="Download Annotated Image (Auto Only)",
-                                data=f,
-                                file_name="annotated_image_auto.jpg",
-                                mime="image/jpeg"
-                            )
-                        st.components.v1.html(html_code, height=height + 150, width=width + 20)
             
     except Exception as e:
         st.error(f"Error processing image: {e}. Try uploading a different image or checking the file format.")
