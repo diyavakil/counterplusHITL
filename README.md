@@ -1,2 +1,7 @@
-1. upload the image you would like to run inference on (in `.jpg`, `.jpeg`, or `.png` form). you will be able to see your original uploaded image once it has fully uploaded.
-2. by scrolling down past your original image, you will see a `Run YOLO inference` button. 
+instructions (please read <3):
+1. upload the image you would like to run inference on (in `.jpg`, `.jpeg`, or `.png` form). you'll be able to see your original uploaded image once it has fully uploaded.
+2. by scrolling down past your original image, you will see a `Run YOLO inference` button. this will run the model to automatically detect and quantify colonies in the image. the `YOLO Detection Options` dropdown menu allows you to adjust advanced settings.
+    -  `confidence threshold` = will filter out any detections below whatever confidence level you set. not recommended because the current model tends to lean towards false negatives, and would only recommend moving it if you're seeing a lot of false positives for some reason. otherwise, keep it set to the default of 0.0
+    -  `show confidence values` = will display the model's calculated confidence score for each detected colony. not really necessary
+4. once you've ran YOLO inference, it will display an annotated image with the YOLO model's detected colonies and a total count
+5. scrolling down, it will display a `Manual Adjustment` section that contains an interactive version of the YOLO annotations. click anywhere on this image where the model missed a colony and it will add a red dot onto the image and manually adjust the total count. press the `Undo Last Dot` or `Clear All Dots` buttons underneath if necessary. when you're done adding any missed colonies, `Total colonies` is displayed underneath the image and this is a sum of the model's auto detected colonies PLUS your manually added colonies.
