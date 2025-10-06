@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 try:
     from ultralytics import YOLO
