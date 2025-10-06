@@ -9,7 +9,6 @@ import numpy as np
 from PIL import Image
 import base64
 from io import BytesIO
-import json
 
 # Custom title/icon
 try:
@@ -21,8 +20,8 @@ except FileNotFoundError:
 # Header
 st.title("🧫 Colony Counter v1")
 st.markdown("""
-Welcome to the Colony Counter! Upload an image of bacterial colonies, run YOLO detection, and manually add dots for missed colonies. 
-Adjust detection settings and download results below.
+Welcome to the Colony Counter! Upload an image of bacterial colonies, run YOLO detection, and manually add dots for any missed colonies. 
+Adjust settings for confidence thresholds and toggle confidence scores. Download your annotated images at any step.
 """, unsafe_allow_html=True)
 
 try:
@@ -41,49 +40,38 @@ if uploaded_file is not None:
         if img is None:
             raise ValueError("Failed to decode image.")
         
-        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption="Original Image", width=800)
+        # Display original image with default Streamlit sizing (not full width)
+        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption="Original Image")
         
-        # YOLO Detection Options
+        # Options for YOLO
         with st.expander("YOLO Detection Options", expanded=True):
             conf_threshold = st.slider("Confidence threshold", min_value=0.0, max_value=1.0, value=0.00, step=0.01, help="Filter detections below this confidence level. Set to 0.00 to include all detections.")
             show_conf = st.checkbox("Show confidence values", value=False, help="Display confidence scores next to each detected colony.")
         
         if st.button("Run YOLO Inference", use_container_width=True):
             with st.spinner("Running YOLO inference..."):
-                results = model(img, conf=conf_threshold)
+                results = model(img)
                 img_annotated = img.copy()
                 
                 # Get boxes and confidences
                 yolo_boxes = results[0].boxes.xyxy.cpu().numpy()
                 yolo_confs = results[0].boxes.conf.cpu().numpy()
                 
-                # Prepare JSON for detections
-                detections = {
-                    "predictions": [
-                        {
-                            "x": float((box[0] + box[2]) / 2),  # center x
-                            "y": float((box[1] + box[3]) / 2),  # center y
-                            "width": float(box[2] - box[0]),
-                            "height": float(box[3] - box[1]),
-                            "confidence": float(conf),
-                            "class": "colony",
-                            "class_id": 0,
-                            "detection_id": f"{np.random.randint(0, 1000000):06d}-0000-0000-0000-{np.random.randint(0, 1000000):06d}"
-                        }
-                        for box, conf in zip(yolo_boxes, yolo_confs)
-                    ]
-                }
+                # Filter by threshold
+                mask = yolo_confs >= conf_threshold
+                filtered_boxes = yolo_boxes[mask]
+                filtered_confs = yolo_confs[mask]
                 
                 # Draw green boxes (and confidences if enabled)
-                for i, box in enumerate(yolo_boxes):
+                for i, box in enumerate(filtered_boxes):
                     x1, y1, x2, y2 = map(int, box)
                     cv2.rectangle(img_annotated, (x1, y1), (x2, y2), (0, 255, 0), 1)
                     if show_conf:
-                        conf_text = f"{yolo_confs[i]:.2f}"
+                        conf_text = f"{filtered_confs[i]:.2f}"
                         cv2.putText(img_annotated, conf_text, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                 
-                # Count colonies
-                colony_count = len(yolo_boxes)
+                # Count colonies (after filtering)
+                colony_count = len(filtered_boxes)
                 
                 # Add auto count in bottom-right corner
                 text = f"Auto Colonies: {colony_count}"
@@ -95,7 +83,8 @@ if uploaded_file is not None:
                 text_y = img_annotated.shape[0] - 10  # 10 px from bottom
                 cv2.putText(img_annotated, text, (text_x, text_y), font, font_scale, (0, 255, 0), thickness)
                 
-                st.image(cv2.cvtColor(img_annotated, cv2.COLOR_BGR2RGB), caption="Annotated Image (Auto Detections)", width=800)
+                # Display annotated image with default Streamlit sizing
+                st.image(cv2.cvtColor(img_annotated, cv2.COLOR_BGR2RGB), caption="Annotated Image (Auto Detections)")
                 
                 # Save annotated img to file for download
                 save_path = "annotated_streamlit.jpg"
@@ -108,16 +97,6 @@ if uploaded_file is not None:
                         mime="image/jpeg",
                         use_container_width=True
                     )
-                
-                # Save detections to JSON file
-                detections_json = json.dumps(detections, indent=2)
-                st.download_button(
-                    label="Download Detections (JSON)",
-                    data=detections_json,
-                    file_name="detections.json",
-                    mime="application/json",
-                    use_container_width=True
-                )
                 
                 # Now, allow adding dots on the annotated image
                 st.subheader("Manual Adjustments")
@@ -150,14 +129,16 @@ if uploaded_file is not None:
                 
                 # HTML and JavaScript for canvas with controls
                 html_code = f"""
-                <div style="text-align: center; padding: 10px;">
+                <div style="text-align: center;">
                     <canvas id="canvas" width="{width}" height="{height}" style="border:1px solid #000000; display: block; margin: 0 auto;"></canvas>
-                    <div id="count" style="margin: 15px 0; font-size: 20px; font-weight: bold; color: white; background-color: rgba(0, 0, 0, 0.7); padding: 10px; border-radius: 5px;">
+                    <div id="count" style="margin: 10px; font-size: 20px; font-weight: bold; color: white; background-color: rgba(0, 0, 0, 0.7); padding: 10px; border-radius: 5px;">
                         Manual additions: 0 | Total colonies: {colony_count}
                     </div>
-                    <button id="undo" style="margin: 5px; padding: 10px 20px; font-size: 16px; cursor: pointer;">Undo Last Dot</button>
-                    <button id="clear" style="margin: 5px; padding: 10px 20px; font-size: 16px; cursor: pointer;">Clear All Dots</button>
-                    <button id="download" style="margin: 5px; padding: 10px 20px; font-size: 16px; cursor: pointer;">Download Edited Image</button>
+                    <div style="margin: 10px;">
+                        <button id="undo" style="margin: 5px; padding: 10px 20px; font-size: 16px; cursor: pointer;">Undo Last Dot</button>
+                        <button id="clear" style="margin: 5px; padding: 10px 20px; font-size: 16px; cursor: pointer;">Clear All Dots</button>
+                        <button id="download" style="margin: 5px; padding: 10px 20px; font-size: 16px; cursor: pointer;">Download Edited Image</button>
+                    </div>
                 </div>
                 <script>
                 var canvas = document.getElementById('canvas');
@@ -206,7 +187,7 @@ if uploaded_file is not None:
                 </script>
                 """
                 
-                # Render the HTML in Streamlit
+                # Render the HTML in Streamlit with adjusted height to prevent cropping
                 st.components.v1.html(html_code, height=height + 150, width=width + 20)
             
     except Exception as e:
