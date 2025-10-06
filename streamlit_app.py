@@ -52,16 +52,16 @@ if uploaded_file is not None:
                 results = model(img)
                 img_annotated = img.copy()
                 
-                # Get boxes and confidences
+                # get boxes and confidences
                 yolo_boxes = results[0].boxes.xyxy.cpu().numpy()
                 yolo_confs = results[0].boxes.conf.cpu().numpy()
                 
-                # Filter by threshold
+                # filter by threshold
                 mask = yolo_confs >= conf_threshold
                 filtered_boxes = yolo_boxes[mask]
                 filtered_confs = yolo_confs[mask]
                 
-                # Draw green boxes (and confidences if enabled)
+                # draw cute lil green boxes (and confidences if enabled)
                 for i, box in enumerate(filtered_boxes):
                     x1, y1, x2, y2 = map(int, box)
                     cv2.rectangle(img_annotated, (x1, y1), (x2, y2), (0, 255, 0), 1)
@@ -69,10 +69,10 @@ if uploaded_file is not None:
                         conf_text = f"{filtered_confs[i]:.2f}"
                         cv2.putText(img_annotated, conf_text, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                 
-                # Count colonies (after filtering)
+                # count colonies (after filtering)
                 colony_count = len(filtered_boxes)
                 
-                # Add auto count in bottom-right corner
+                # add auto count in bottom-right corner
                 text = f"Auto Colonies: {colony_count}"
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 font_scale = 3
@@ -82,13 +82,13 @@ if uploaded_file is not None:
                 text_y = img_annotated.shape[0] - 10
                 cv2.putText(img_annotated, text, (text_x, text_y), font, font_scale, (0, 255, 0), thickness)
                 
-                # Store annotated image in session state
+                # store annotated img in session state
                 st.session_state['img_annotated'] = img_annotated
                 st.session_state['colony_count'] = colony_count
                 
                 st.image(cv2.cvtColor(img_annotated, cv2.COLOR_BGR2RGB), caption="Annotated Image (Auto Detections)", use_column_width=True)
                 
-                # Save annotated img to file for download
+                # save annotated img to file for download
                 save_path = "annotated_streamlit.jpg"
                 cv2.imwrite(save_path, img_annotated)
                 with open(save_path, "rb") as f:
@@ -99,11 +99,11 @@ if uploaded_file is not None:
                         mime="image/jpeg"
                     )
                 
-                # Manual adjustments section
+                # manual adjustments section
                 st.subheader("Manual Adjustments")
                 st.info("Click on the image to add red dots for missed colonies. Use the buttons to manage your edits.")
                 
-                # Maximum dimensions for display
+                # maximum dimensions for display
                 MAX_WIDTH = 1920
                 MAX_HEIGHT = 1080
                 
@@ -113,14 +113,14 @@ if uploaded_file is not None:
                     img.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
                     return img
                 
-                # Convert annotated OpenCV image to PIL
+                # convert annotated OpenCV img to PIL
                 img_pil = Image.fromarray(cv2.cvtColor(img_annotated, cv2.COLOR_BGR2RGB))
                 
-                # Resize image to fit within max dimensions
+                # resize img to fit within max dimensions
                 resized_img = resize_image(img_pil)
                 width, height = resized_img.size
                 
-                # Convert resized image to bytes for base64 encoding
+                # convert resized img to bytes for base64 encoding
                 buffered = BytesIO()
                 resized_img.save(buffered, format="PNG")
                 base64_img = base64.b64encode(buffered.getvalue()).decode()
@@ -191,8 +191,8 @@ if uploaded_file is not None:
                 </script>
                 """
                 
-                # Render the HTML in Streamlit within a centered column
-                col1, col2, col3 = st.columns([1, 6, 1])  # Adjust column ratios to center content
+                # render the HTML in Streamlit within a centered column
+                col1, col2, col3 = st.columns([1, 6, 1])  # adjust column ratios to center content
                 with col2:
                     st.components.v1.html(html_code, height=height + 150)
             
