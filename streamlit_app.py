@@ -125,13 +125,6 @@ if uploaded_file is not None:
                 resized_img = resize_image(img_pil)
                 width, height = resized_img.size
                 
-                # Ensure canvas fits within Streamlit container
-                container_width = 800  # Approximate Streamlit container width; adjust as needed
-                if width > container_width:
-                    scale = container_width / width
-                    width = int(width * scale)
-                    height = int(height * scale)
-                
                 # Convert resized image to bytes for base64 encoding
                 buffered = BytesIO()
                 resized_img.save(buffered, format="PNG")
@@ -141,8 +134,8 @@ if uploaded_file is not None:
                 
                 # HTML and JavaScript for canvas with controls
                 html_code = f"""
-                <div style="text-align: center; max-width: {container_width}px; margin: 0 auto;">
-                    <canvas id="canvas" width="{width}" height="{height}" style="border:1px solid #000000; display: block; margin: 0 auto;"></canvas>
+                <div style="text-align: center;">
+                    <canvas id="canvas" width="{width}" height="{height}" style="max-width: 100%; height: auto; border:1px solid #000000; display: block; margin: 0 auto;"></canvas>
                     <div id="count" style="margin: 10px; padding: 10px; background-color: white; color: black; border: 1px solid #ccc; border-radius: 5px; display: inline-block;">
                         Manual additions: 0 | Total colonies: {colony_count}
                     </div>
@@ -163,7 +156,7 @@ if uploaded_file is not None:
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.imageSmoothingEnabled = true;
                     ctx.imageSmoothingQuality = 'high';
-                    ctx.drawImage(img, 0, 0, {width}, {height});
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     for (var p of points) {{
                         ctx.beginPath();
                         ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
@@ -179,8 +172,10 @@ if uploaded_file is not None:
                 }};
                 canvas.addEventListener('click', function(event) {{
                     var rect = canvas.getBoundingClientRect();
-                    var x = event.clientX - rect.left;
-                    var y = event.clientY - rect.top;
+                    var scaleX = canvas.width / rect.width;
+                    var scaleY = canvas.height / rect.height;
+                    var x = (event.clientX - rect.left) * scaleX;
+                    var y = (event.clientY - rect.top) * scaleY;
                     points.push({{x: x, y: y}});
                     redraw();
                 }});
@@ -201,8 +196,10 @@ if uploaded_file is not None:
                 </script>
                 """
                 
-                # Render the HTML in Streamlit
-                st.components.v1.html(html_code, height=height + 150, width=container_width)
+                # Render the HTML in Streamlit within a centered column
+                col1, col2, col3 = st.columns([1, 6, 1])  # Adjust column ratios to center content
+                with col2:
+                    st.components.v1.html(html_code, height=height + 150)
             
     except Exception as e:
         st.error(f"Error processing image: {e}. Try uploading a different image or checking the file format.")
