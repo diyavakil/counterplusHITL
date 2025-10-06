@@ -20,7 +20,12 @@ except FileNotFoundError:
 # Header and Instructions
 st.title("🧫 Colony Counter v1")
 st.markdown("""
-Analyze bacterial colonies with automated YOLO detection and manual human-in-the-loop corrections. Navigate to the GitHub repository using the button on the top right for detailed instructions (in the README.md file).
+Analyze bacterial colonies with automated YOLO detection and manual dot additions for precise counting.  
+**Instructions**:  
+1. Upload a JPG, JPEG, or PNG image.  
+2. Adjust YOLO options and click "Run YOLO Inference".  
+3. Click on the annotated image to add red dots for missed colonies.  
+4. Use buttons to undo, clear, or download the edited image.
 """)
 
 try:
@@ -61,20 +66,13 @@ if uploaded_file is not None:
                 filtered_boxes = yolo_boxes[mask]
                 filtered_confs = yolo_confs[mask]
                 
-                # Scale factor for annotations based on image size
-                scale_factor = max(img.shape[0], img.shape[1]) / 1000.0  # Adjust based on image size
-                box_thickness = max(1, int(1 * scale_factor))  # Scale box thickness
-                font_scale = max(1.0, 1.0 * scale_factor)  # Scale font size
-                font_thickness = max(2, int(2 * scale_factor))  # Scale font thickness
-                
                 # Draw green boxes (and confidences if enabled)
                 for i, box in enumerate(filtered_boxes):
                     x1, y1, x2, y2 = map(int, box)
-                    cv2.rectangle(img_annotated, (x1, y1), (x2, y2), (0, 255, 0), box_thickness)
+                    cv2.rectangle(img_annotated, (x1, y1), (x2, y2), (0, 255, 0), 1)
                     if show_conf:
                         conf_text = f"{filtered_confs[i]:.2f}"
-                        cv2.putText(img_annotated, conf_text, (x1, y1 - int(5 * scale_factor)), 
-                                   cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), font_thickness)
+                        cv2.putText(img_annotated, conf_text, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                 
                 # Count colonies (after filtering)
                 colony_count = len(filtered_boxes)
@@ -82,12 +80,12 @@ if uploaded_file is not None:
                 # Add auto count in bottom-right corner
                 text = f"Auto Colonies: {colony_count}"
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                font_scale_count = max(3.0, 3.0 * scale_factor)
-                thickness_count = max(5, int(5 * scale_factor))
-                text_size = cv2.getTextSize(text, font, font_scale_count, thickness_count)[0]
+                font_scale = 3
+                thickness = 5
+                text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
                 text_x = img_annotated.shape[1] - text_size[0] - 10
                 text_y = img_annotated.shape[0] - 10
-                cv2.putText(img_annotated, text, (text_x, text_y), font, font_scale_count, (0, 255, 0), thickness_count)
+                cv2.putText(img_annotated, text, (text_x, text_y), font, font_scale, (0, 255, 0), thickness)
                 
                 # Store annotated image in session state
                 st.session_state['img_annotated'] = img_annotated
@@ -110,7 +108,7 @@ if uploaded_file is not None:
                 st.subheader("Manual Adjustments")
                 st.info("Click on the image to add red dots for missed colonies. Use the buttons to manage your edits.")
                 
-                # Maximum dimensions for display (increased for better quality)
+                # Maximum dimensions for display
                 MAX_WIDTH = 1920
                 MAX_HEIGHT = 1080
                 
@@ -161,7 +159,7 @@ if uploaded_file is not None:
                     ctx.drawImage(img, 0, 0, {width}, {height});
                     for (var p of points) {{
                         ctx.beginPath();
-                        ctx.arc(p.x, p.y, 5 * {scale_factor}, 0, 2 * Math.PI);
+                        ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
                         ctx.fillStyle = 'red';
                         ctx.fill();
                     }}
