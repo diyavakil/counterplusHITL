@@ -2,7 +2,7 @@ import streamlit as st
 try:
     from ultralytics import YOLO
 except ImportError as e:
-    st.error(f"Failed to import YOLO: {e}. Ensure ultralytics and opencv-python-headless are installed in your environment.")
+    st.error(f"Failed to import YOLO: {e}. Ensure ultralytics and opencv-python-headless are installed.")
     st.stop()
 import cv2
 import numpy as np
@@ -17,21 +17,16 @@ try:
 except FileNotFoundError:
     st.set_page_config(page_title="Colony Counter v1", layout="centered")
 
-# Sidebar
-st.sidebar.title("Colony Counter v1")
-st.sidebar.markdown("""
-**Version**: 1.0  
-**Description**: Upload a bacterial colony image, run YOLO detection, and manually add dots for missed colonies. Adjust confidence thresholds and toggle confidence display as needed.  
+# Header and Instructions
+st.title("🧫 Colony Counter v1")
+st.markdown("""
+Analyze bacterial colonies with automated YOLO detection and manual dot additions for precise counting.  
 **Instructions**:  
 1. Upload a JPG, JPEG, or PNG image.  
-2. Set YOLO options and click "Run YOLO Inference".  
-3. Click on the annotated image to add red dots.  
-4. Use buttons to undo, clear, or download the edited image.
+2. Adjust YOLO options and click "Run YOLO Inference".  
+3. Click on the annotated image to add red dots for missed colonies.  
+4. Use buttons to undo, clear, reset, or download the edited image.
 """)
-
-# Header
-st.title("🧫 Colony Counter v1")
-st.markdown("Analyze bacterial colonies with automated YOLO detection and manual dot additions for precise counting.")
 
 try:
     model = YOLO("weights.pt")  # load weights
@@ -92,9 +87,13 @@ if uploaded_file is not None:
                 text_y = img_annotated.shape[0] - 10
                 cv2.putText(img_annotated, text, (text_x, text_y), font, font_scale, (0, 255, 0), thickness)
                 
-                # Store annotated image in session state for reset
+                # Store annotated image and base64 in session state for reset
                 st.session_state['img_annotated'] = img_annotated
                 st.session_state['colony_count'] = colony_count
+                buffered = BytesIO()
+                img_pil = Image.fromarray(cv2.cvtColor(img_annotated, cv2.COLOR_BGR2RGB))
+                img_pil.save(buffered, format="PNG")
+                st.session_state['base64_img'] = base64.b64encode(buffered.getvalue()).decode()
                 
                 st.image(cv2.cvtColor(img_annotated, cv2.COLOR_BGR2RGB), caption="Annotated Image (Auto Detections)", use_column_width=True)
                 
@@ -145,10 +144,10 @@ if uploaded_file is not None:
                         Manual additions: 0 | Total colonies: {colony_count}
                     </div>
                     <div style="margin-top: 10px;">
-                        <button id="undo" style="margin: 5px; padding: 8px 16px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 4px;">Undo Last Dot</button>
-                        <button id="clear" style="margin: 5px; padding: 8px 16px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 4px;">Clear All Dots</button>
-                        <button id="reset" style="margin: 5px; padding: 8px 16px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 4px;">Reset to Auto</button>
-                        <button id="download" style="margin: 5px; padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px;">Download Edited Image</button>
+                        <button id="undo" title="Remove the last red dot added" style="margin: 5px; padding: 8px 16px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 4px;">Undo Last Dot</button>
+                        <button id="clear" title="Remove all red dots, keeping current image" style="margin: 5px; padding: 8px 16px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 4px;">Clear All Dots</button>
+                        <button id="reset" title="Reload original YOLO-annotated image and clear all red dots" style="margin: 5px; padding: 8px 16px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 4px;">Reset to Auto</button>
+                        <button id="download" title="Download the image with all annotations" style="margin: 5px; padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px;">Download Edited Image</button>
                     </div>
                 </div>
                 <script>
@@ -191,7 +190,7 @@ if uploaded_file is not None:
                 }});
                 document.getElementById('reset').addEventListener('click', function() {{
                     points = [];
-                    img.src = 'data:{mime_type};base64,{base64_img}';
+                    img.src = 'data:{mime_type};base64,{st.session_state['base64_img']}';
                     redraw();
                 }});
                 document.getElementById('download').addEventListener('click', function() {{
@@ -207,7 +206,7 @@ if uploaded_file is not None:
                 st.components.v1.html(html_code, height=height + 150, width=width + 20)
                 
                 # Reset to auto-annotated image
-                if st.button("Reset to Auto-Annotated Image"):
+                if st.button("Reset to Auto-Annotated Image", help="Reload the original YOLO-annotated image and clear all manual dots"):
                     if 'img_annotated' in st.session_state:
                         st.image(cv2.cvtColor(st.session_state['img_annotated'], cv2.COLOR_BGR2RGB), caption="Annotated Image (Auto Detections)", use_column_width=True)
                         with open(save_path, "rb") as f:
