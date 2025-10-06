@@ -125,6 +125,13 @@ if uploaded_file is not None:
                 resized_img = resize_image(img_pil)
                 width, height = resized_img.size
                 
+                # Ensure canvas fits within Streamlit container
+                container_width = 800  # Approximate Streamlit container width; adjust as needed
+                if width > container_width:
+                    scale = container_width / width
+                    width = int(width * scale)
+                    height = int(height * scale)
+                
                 # Convert resized image to bytes for base64 encoding
                 buffered = BytesIO()
                 resized_img.save(buffered, format="PNG")
@@ -134,7 +141,7 @@ if uploaded_file is not None:
                 
                 # HTML and JavaScript for canvas with controls
                 html_code = f"""
-                <div style="text-align: center;">
+                <div style="text-align: center; max-width: {container_width}px; margin: 0 auto;">
                     <canvas id="canvas" width="{width}" height="{height}" style="border:1px solid #000000; display: block; margin: 0 auto;"></canvas>
                     <div id="count" style="margin: 10px; padding: 10px; background-color: white; color: black; border: 1px solid #ccc; border-radius: 5px; display: inline-block;">
                         Manual additions: 0 | Total colonies: {colony_count}
@@ -195,7 +202,7 @@ if uploaded_file is not None:
                 """
                 
                 # Render the HTML in Streamlit
-                st.components.v1.html(html_code, height=height + 150, width=width + 20)
+                st.components.v1.html(html_code, height=height + 150, width=container_width)
             
     except Exception as e:
         st.error(f"Error processing image: {e}. Try uploading a different image or checking the file format.")
