@@ -40,7 +40,7 @@ if uploaded_file is not None:
             if img is None:
                 raise ValueError("Failed to decode image.")
         
-        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption="Original Image", use_column_width=True)
+        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption="Original Image", use_container_width=True)
         
         # options for YOLO
         with st.expander("YOLO Detection Options", expanded=True):
@@ -86,7 +86,7 @@ if uploaded_file is not None:
                 st.session_state['img_annotated'] = img_annotated
                 st.session_state['colony_count'] = colony_count
                 
-                st.image(cv2.cvtColor(img_annotated, cv2.COLOR_BGR2RGB), caption="Annotated Image (Auto Detections)", use_column_width=True)
+                st.image(cv2.cvtColor(img_annotated, cv2.COLOR_BGR2RGB), caption="Annotated Image (Auto Detections)", use_container_width=True)
                 
                 # save annotated img to file for download
                 save_path = "annotated_streamlit.jpg"
