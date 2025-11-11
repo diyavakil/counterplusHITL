@@ -18,7 +18,7 @@ except FileNotFoundError:
     st.set_page_config(page_title="Terry: Colony Counter", layout="centered")
 
 # header
-st.title("🧫 Colony Counter")
+st.title("🧫 Terry: Colony Counter")
 st.markdown("""
 Quantify bacterial colonies with automated YOLO detection and manual human-in-the-loop corrections. Navigate to the GitHub repository using the button in the top right corner for detailed guide.
 """)
