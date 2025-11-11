@@ -13,9 +13,9 @@ from io import BytesIO
 # custom title/icon
 try:
     im = Image.open("App_Icon.jpg")  # cute squid
-    st.set_page_config(page_title="Colony Counter", page_icon=im, layout="centered")
+    st.set_page_config(page_title="Terry: Colony Counter", page_icon=im, layout="centered")
 except FileNotFoundError:
-    st.set_page_config(page_title="Colony Counter", layout="centered")
+    st.set_page_config(page_title="Terry: Colony Counter", layout="centered")
 
 # header
 st.title("🧫 Colony Counter")
