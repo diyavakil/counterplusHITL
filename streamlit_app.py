@@ -44,8 +44,8 @@ if uploaded_file is not None:
         
         # options for YOLO
         with st.expander("YOLO Detection Options", expanded=True):
-            conf_threshold = st.slider("Confidence threshold", min_value=0.0, max_value=1.0, value=0.0, step=0.01, help="Filter out detections below this confidence level.")
-            show_conf = st.checkbox("Show confidence values", value=True, help="Display confidence scores for each detected colony.")
+            conf_threshold = st.slider("Confidence threshold", min_value=0.0, max_value=1.0, value=0.0, step=0.01, help="Filter out detections below this confidence level. It is not recommended to adjust this value.")
+            show_conf = st.checkbox("Show confidence values", value=False, help="Display confidence scores for each detected colony. It is recommended to keep this setting off.")
         
         if st.button("Run YOLO Inference"):
             with st.spinner("Running YOLO inference..."):
