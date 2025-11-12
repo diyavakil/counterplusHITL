@@ -18,7 +18,7 @@ except FileNotFoundError:
     st.set_page_config(page_title="Terry v1: Colony Counter", layout="centered")
 
 # header
-st.title("🧫 Terry: Colony Counter")
+st.title("🧫 Terry v1: Colony Counter")
 st.markdown("""
 Navigate to the GitHub repository using the button in the top-right corner for detailed instructions.
 """)
