@@ -6,26 +6,18 @@ Quantify bacterial colonies with automated YOLO-based object detection and manua
 ##  Usage Instructions
 
 1. **Upload your image**  
-   Upload the Petri dish image you want to analyze (`.jpg`, `.jpeg`, or `.png`).  
-   Once uploaded, your original image will be displayed.
-
+   Upload the Petri dish image you want to analyze (`.jpg`, `.jpeg`, or `.png`). Once uploaded, your original image will be displayed.
 2. **Run YOLO inference**  
-   Scroll down and click **`Run YOLO Inference`** to automatically detect and count colonies.  
-
-   You can expand the **`YOLO Detection Options`** dropdown to adjust parameters:
+   Scroll down and click **`Run YOLO Inference`** to automatically detect and count colonies. Optionally, you can expand the **`YOLO Detection Options`** dropdown to adjust parameters:
    - **Confidence Threshold:** Filters detections below a set confidence score.  
-     - Recommended to keep at **0.0** (minimizes false negatives).  
-     - Only raise this if you observe many false positives.
+     - Recommended to keep at **0.0** (minimizes false negatives). Only raise this if you observe many false positives (rare).
    - **Show Confidence Values:** Displays YOLO’s confidence score for each detected colony (optional).
-
 3. **View results**  
    After running inference, Terry will display:
-   - The annotated image with detected colonies  
-   - The **total colony count** automatically computed by the model  
-
+   - The annotated image with detected colonies highlighted in green
+   - The **total colony count** automatically computed by the model in the bottom right corner
 4. **Manual adjustment (Human-in-the-Loop correction)**  
-   Scroll to the **`Manual Adjustment`** section.  
-   This lets you correct any missed detections:
+   Scroll to the **`Manual Adjustment`** section. This lets you correct any missed detections:
    - Click anywhere on the image to add a red dot where a colony was missed.  
    - Use **`Undo Last Dot`** or **`Clear All Dots`** to remove mistakes.  
    - The **Total Colonies** count updates automatically to include both model detections and manual additions.
@@ -35,22 +27,14 @@ Quantify bacterial colonies with automated YOLO-based object detection and manua
 ## 💡 Imaging Recommendations
 
 To get the most accurate results:
-
 - **Colony size:**  
-  Works best on **larger, less dense** colonies.  
-  → Dilute your sample more and allow colonies to grow larger if possible.
-
+  Works best on **larger, less dense** colonies. It is recommended to dilute your sample more and allow colonies to grow larger if possible.
 - **Lighting:**  
-  Place the Petri dish **lid-side-up** on a bright LED light pad (max brightness).  
-  Work in a **dark room** to reduce glare.
-
+  Place the petri dish **lid-side-up** on a bright LED light pad (max brightness). Work in a **dark room** to reduce glare.
 - **Focus:**  
-  Remove the Petri dish lid before photographing.  
-  Make sure colonies are **in sharp focus**.
-
+  Remove the Petri dish lid before photographing. Make sure colonies are **in sharp focus**.
 - **Camera quality:**  
-  A modern smartphone camera works great!  
-  - For iPhones, use **Portrait → Contour Lighting** mode for best results.
+  A smartphone camera works great! For iPhones, use **Portrait → Contour Lighting** mode for best results.
  
 
 
