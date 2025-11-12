@@ -1,6 +1,7 @@
 # 🧫 Terry the Colony Counter (v1)
 Quantify bacterial colonies with automated YOLO-based object detection and manual human-in-the-loop corrections.
-   NOTE: The current version (v1) tends to have a decent number of false negative detections. The human-in-the-loop addition is meant to adjust the automatic count to ensure accuracy. All images are highly recommended to be checked manually post-inference to make any necessary corrections.
+
+NOTE: The current version (v1) tends to have a decent number of false negative detections. The human-in-the-loop addition is meant to adjust the automatic count to ensure accuracy. All images are highly recommended to be checked manually post-inference to make any necessary corrections.
 
 ---
 
