@@ -13,14 +13,14 @@ from io import BytesIO
 # custom title/icon
 try:
     im = Image.open("App_Icon.jpg")  # cute squid
-    st.set_page_config(page_title="Terry: Colony Counter", page_icon=im, layout="centered")
+    st.set_page_config(page_title="Terry v1: Colony Counter", page_icon=im, layout="centered")
 except FileNotFoundError:
-    st.set_page_config(page_title="Terry: Colony Counter", layout="centered")
+    st.set_page_config(page_title="Terry v1: Colony Counter", layout="centered")
 
 # header
 st.title("🧫 Terry: Colony Counter")
 st.markdown("""
-Quantify bacterial colonies with automated YOLO detection and manual human-in-the-loop corrections. Navigate to the GitHub repository using the button in the top right corner for detailed guide.
+Navigate to the GitHub repository using the button in the top-right corner for detailed instructions.
 """)
 
 try:
