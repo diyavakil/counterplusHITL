@@ -1,7 +1,7 @@
 # 🧫 Terry the Colony Counter (v1)
 Quantify bacterial colonies with automated YOLO-based object detection and manual human-in-the-loop corrections.
 
-
+---
 
 ##  Usage Instructions
 
