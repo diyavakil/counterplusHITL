@@ -2,13 +2,13 @@ import streamlit as st
 try:
     from ultralytics import YOLO
 except ImportError as e:
-    st.error(f"Failed to import YOLO: {e}. Ensure ultralytics and opencv-python-headless are installed.")
+    st.error(f"Failed to import YOLO: {e}. Ensure ultralytics and opencv-python-headless are installed.") # skill issue
     st.stop()
 import cv2
 import numpy as np
 from PIL import Image
 import base64
-from io import BytesIO
+from io import BytesIO # i dont know what i am but everything breaks without me. pls dont delete me diya
 
 # custom title/icon
 try:
@@ -17,7 +17,7 @@ try:
 except FileNotFoundError:
     st.set_page_config(page_title="Terry v1", layout="centered")
 
-# header
+# header plus the instructions no one's gonna read anyways
 st.title("🧫 Terry v1")
 st.markdown("""
 Quantify bacterial colonies with automated YOLO-based object detection and manual human-in-the-loop corrections. Navigate to the [GitHub repo](https://github.com/diyavakil/counterplusHITL) for detailed usage instructions.
@@ -26,42 +26,42 @@ Quantify bacterial colonies with automated YOLO-based object detection and manua
 try:
     model = YOLO("weights.pt")  # load weights
 except Exception as e:
-    st.error(f"Failed to load YOLO model: {e}. Ensure the weights file 'weights.pt' is in the correct directory.")
+    st.error(f"Failed to load YOLO model: {e}. Ensure the weights file 'weights.pt' is in the correct directory.") # skill issue 2: electric boogaloo
     st.stop()
 
 # upload img
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"], help="Supported formats: JPG, JPEG, PNG")
 if uploaded_file is not None:
     try:
-        with st.spinner("Loading image..."):
+        with st.spinner("Loading image..."): 
             # convert uploaded file to OpenCV img
             file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
             img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
             if img is None:
-                raise ValueError("Failed to decode image.")
+                raise ValueError("Failed to decode image.") # 
         
         st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption="Original Image", use_container_width=True)
         
         # options for YOLO
-        with st.expander("YOLO Detection Options", expanded=True):
+        with st.expander("YOLO Detection Options", expanded=True): # expander? i hardly know her
             conf_threshold = st.slider("Confidence threshold", min_value=0.0, max_value=1.0, value=0.0, step=0.01, help="Filter out detections below this confidence level. It is not recommended to adjust this value.")
             show_conf = st.checkbox("Show confidence values", value=False, help="Display confidence scores for each detected colony. It is recommended to keep this setting off.")
         
         if st.button("Run YOLO Inference"):
-            with st.spinner("Running YOLO inference..."):
+            with st.spinner("Running YOLO inference..."): # spinner? she'll get dizzy
                 results = model(img)
                 img_annotated = img.copy()
                 
-                # get boxes and confidences
+                # get bboxes and confidences
                 yolo_boxes = results[0].boxes.xyxy.cpu().numpy()
                 yolo_confs = results[0].boxes.conf.cpu().numpy()
                 
                 # filter by threshold
-                mask = yolo_confs >= conf_threshold
+                mask = yolo_confs >= conf_threshold # prob 0 unless adjusted
                 filtered_boxes = yolo_boxes[mask]
                 filtered_confs = yolo_confs[mask]
                 
-                # draw cute lil green boxes (and confidences if enabled)
+                # draw them cute lil green boxes (and confidences if enabled)
                 for i, box in enumerate(filtered_boxes):
                     x1, y1, x2, y2 = map(int, box)
                     cv2.rectangle(img_annotated, (x1, y1), (x2, y2), (0, 255, 0), 1)
@@ -76,11 +76,11 @@ if uploaded_file is not None:
                 text = f"Auto Colonies: {colony_count}"
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 font_scale = 3
-                thickness = 5
+                thickness = 5 # any higher than this and she too thick
                 text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
                 text_x = img_annotated.shape[1] - text_size[0] - 10
                 text_y = img_annotated.shape[0] - 10
-                cv2.putText(img_annotated, text, (text_x, text_y), font, font_scale, (0, 255, 0), thickness)
+                cv2.putText(img_annotated, text, (text_x, text_y), font, font_scale, (0, 255, 0), thickness) # yummy green
                 
                 # store annotated img in session state
                 st.session_state['img_annotated'] = img_annotated
@@ -106,6 +106,7 @@ if uploaded_file is not None:
                 # maximum dimensions for display
                 MAX_WIDTH = 1920
                 MAX_HEIGHT = 1080
+                # still a little blurry but larger doesn't work so 🤷‍♀️
                 
                 def resize_image(image, max_width=MAX_WIDTH, max_height=MAX_HEIGHT):
                     """Resize image while preserving aspect ratio."""
@@ -119,6 +120,8 @@ if uploaded_file is not None:
                 # resize img to fit within max dimensions
                 resized_img = resize_image(img_pil)
                 width, height = resized_img.size
+
+                # everything below this line was vibe coded and i dunno jackshit about it. jesus take the wheel.
                 
                 # convert resized img to bytes for base64 encoding
                 buffered = BytesIO()
