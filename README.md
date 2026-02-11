@@ -29,4 +29,4 @@ These are just suggestions, but the model's ability to efficiently run inference
 - **Colony size:** Works best on larger, less dense colonies. It is recommended to dilute your sample more and allow colonies to grow larger if possible.
 - **Lighting:** Place the petri dish lid-side-up on a bright LED light pad (max brightness). Work in a dark room to reduce glare. No overhead lighting!
 - **Focus:** Remove the Petri dish lid before photographing. Make sure colonies are in sharp focus.
-- **Camera quality:** A smartphone camera works great! For iPhones, use Portrait > Contour Lighting mode for best results.
+- **Camera quality:** A smartphone camera works great! For iPhones, use Portrait > Contour Lighting mode for best results. Ideally take the photo in 8-bit
