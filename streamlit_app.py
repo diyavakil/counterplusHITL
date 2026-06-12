@@ -20,9 +20,8 @@ except FileNotFoundError:
 # header plus the instructions no one's gonna read anyways
 st.title("🧫 TERRYv1")
 st.markdown("""
-Quantify bacterial colonies with automated YOLO-based object detection and manual human-in-the-loop corrections. It is **highly recommended** to read the [usage instructions and imaging recommendations](https://github.com/diyavakil/counterplusHITL) before use to ensure the best results.
-""")
-st.markdown("""Having issues? [Submit a support ticket](https://github.com/diyavakil/counterplushitl/issues/new) or [send me an email with your query](mailto:dvakil@ucmerced.edu).""")
+Quantify bacterial colonies with automated YOLO-based object detection and manual human-in-the-loop corrections.""")
+st.markdown("""It is **highly recommended** to read the [usage instructions and imaging recommendations](https://github.com/diyavakil/counterplusHITL) before use to ensure the best results. Still having issues? [Submit a support ticket](https://github.com/diyavakil/counterplushitl/issues/new) or [send me an email with your query](mailto:dvakil@ucmerced.edu).""")
 
 try:
     model = YOLO("weights.pt")  # load weights
