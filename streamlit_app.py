@@ -20,7 +20,7 @@ except FileNotFoundError:
 # header plus the instructions no one's gonna read anyways
 st.title("🧫 TERRYv1")
 st.markdown("""
-Quantify bacterial colonies with automated YOLO-based object detection and manual human-in-the-loop corrections. Navigate to the [GitHub repo](https://github.com/diyavakil/counterplusHITL) for detailed instructions on taking images and running inference.
+Quantify bacterial colonies with automated YOLO-based object detection and manual human-in-the-loop corrections. It is HIGHLY RECOMMENDED to read the [usage instructions and imaging recommendations](https://github.com/diyavakil/counterplusHITL) prior to use to ensure best results.
 """)
 st.markdown("""Having issues? [Submit a support ticket](https://github.com/diyavakil/counterplushitl/issues/new) or [send me an email with your query](mailto:dvakil@ucmerced.edu).""")
 
