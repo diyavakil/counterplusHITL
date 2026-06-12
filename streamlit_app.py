@@ -13,15 +13,16 @@ from io import BytesIO # i dont know what i am but everything breaks without me.
 # custom title/icon
 try:
     im = Image.open("App_Icon.jpg")  # cute squid
-    st.set_page_config(page_title="Terry v1", page_icon=im, layout="centered")
+    st.set_page_config(page_title="TERRYv1", page_icon=im, layout="centered")
 except FileNotFoundError:
-    st.set_page_config(page_title="Terry v1", layout="centered")
+    st.set_page_config(page_title="TERRYv1", layout="centered")
 
 # header plus the instructions no one's gonna read anyways
-st.title("🧫 Terry v1")
+st.title("🧫 TERRYv1")
 st.markdown("""
 Quantify bacterial colonies with automated YOLO-based object detection and manual human-in-the-loop corrections. Navigate to the [GitHub repo](https://github.com/diyavakil/counterplusHITL) for detailed usage instructions.
 """)
+st.markdown("""Having issues? [Submit a support ticket](https://github.com/diyavakil/counterplushitl/issues/new) or email dvakil@ucmerced.edu with your query.""")
 
 try:
     model = YOLO("weights.pt")  # load weights
