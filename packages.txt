@@ -1,3 +1,4 @@
 libgl1
 libglx0
 libopengl0
+libgthread-2.0-0
