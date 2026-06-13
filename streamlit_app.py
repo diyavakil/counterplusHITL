@@ -61,13 +61,13 @@ if uploaded_file is not None:
                 filtered_boxes = yolo_boxes[mask]
                 filtered_confs = yolo_confs[mask]
                 
-                # draw them cute lil green boxes (and confidences if enabled)
+                # draw them cute lil magenta boxes (and confidences if enabled)
                 for i, box in enumerate(filtered_boxes):
                     x1, y1, x2, y2 = map(int, box)
-                    cv2.rectangle(img_annotated, (x1, y1), (x2, y2), (0, 255, 0), 1)
+                    cv2.rectangle(img_annotated, (x1, y1), (x2, y2), (255, 0, 255), 1)
                     if show_conf:
                         conf_text = f"{filtered_confs[i]:.2f}"
-                        cv2.putText(img_annotated, conf_text, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                        cv2.putText(img_annotated, conf_text, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
                 
                 # count colonies (after filtering)
                 colony_count = len(filtered_boxes)
@@ -80,7 +80,7 @@ if uploaded_file is not None:
                 text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
                 text_x = img_annotated.shape[1] - text_size[0] - 10
                 text_y = img_annotated.shape[0] - 10
-                cv2.putText(img_annotated, text, (text_x, text_y), font, font_scale, (0, 255, 0), thickness) # yummy green
+                cv2.putText(img_annotated, text, (text_x, text_y), font, font_scale, (255, 0, 255), thickness) # yummy magenta
                 
                 # store annotated img in session state
                 st.session_state['img_annotated'] = img_annotated
