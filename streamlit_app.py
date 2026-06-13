@@ -30,7 +30,7 @@ except Exception as e:
     st.stop()
 
 # upload img
-uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"], help="Supported formats: JPG, JPEG, PNG")
+uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png", "heic"], help="Supported formats: HEIC, PNG, JPG, JPEG")
 if uploaded_file is not None:
     try:
         with st.spinner("Loading image..."): 
