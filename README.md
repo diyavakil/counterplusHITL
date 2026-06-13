@@ -9,7 +9,7 @@ Quantify bacterial colonies with automated YOLO-based object detection and manua
 
 1. **Upload your image**  
    Upload the Petri dish image you want to analyze. Once uploaded, your original image will be displayed.
-   - If you are on a mobile device, you can take a picture directly in the app by selecting the `Take Photo` option. `.heic` and `.png` image file formats are preferred, but inference will still work on `.jpeg` images.
+   - If you are on a mobile device, you can take a picture directly in the app by selecting the `Take Photo` option. `.heic` and `.png` image file formats are preferred, but inference will still work on `.jpeg` images and several other file formats.
 3. **Run YOLO inference**  
    Scroll down and click `Run YOLO Inference` to automatically detect and count colonies. Optionally, you can expand the `YOLO Detection Options` dropdown to adjust parameters:
    - **Confidence Threshold:** Filters detections below a set confidence score. Recommended not to adjust it and to keep it at the default of 0.0 (minimizes false negatives). Only raise this if you observe many false positives.
