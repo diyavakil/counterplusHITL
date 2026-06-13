@@ -30,7 +30,7 @@ except Exception as e:
     st.stop()
 
 # upload img
-uploaded_file = st.file_uploader("Upload an image", type=["heic", "png", "jpeg", "jpg", "bmp", "webp", "dng", "avif", "jp2", "mpo", "pfm"], help="Supported formats: HEIC, PNG, JPEG, JPG, BMP, WEBP, DNG, AVIF, JP2, MPO, PFM")
+uploaded_file = st.file_uploader("Upload an image", type=["png", "heic", "jpeg", "jpg", "bmp", "webp", "tiff", "tif", "dng", "avif", "jp2", "mpo", "pfm"], help="Supported formats: PNG, HEIC, JPEG/JPG, BMP, WEBP, TIFF/TIF, DNG, AVIF, JP2, MPO, PFM")
 if uploaded_file is not None:
     try:
         with st.spinner("Loading image..."): 
